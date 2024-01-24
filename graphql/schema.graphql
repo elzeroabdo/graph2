@@ -1,0 +1,150 @@
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+
+type Query {
+
+    user(
+      id: ID @eq @rules(apply: ["prohibits:email", "required_without:email"])
+      email: String @eq @rules(apply: ["prohibits:id", "required_without:id", "email"])
+    ): User @find
+
+    "List multiple users."
+    users(
+      name: String @where(operator: "like")
+    ): [User!]! @paginate(defaultCount: 10)
+
+    "List multiple projects."
+    projects(
+      name: String @where(operator: "like")
+    ): [Project!]! @paginate(defaultCount: 10)
+
+    "List multiple categories."
+    categories(
+      name: String @where(operator: "like")
+    ): [Category!]! @paginate(defaultCount: 10)
+
+    " project"
+    project(
+      id: ID @eq @rules(apply: ["prohibits:email", "required_without:email"])
+      name: String @eq @rules(apply: ["prohibits:id", "required_without:id", "email"])
+    ): Project @find
+
+    " category"
+    category(id: ID! @eq): Category @find
+    "get project by user"
+    projectByUser(id: ID! @eq): [Project!]! @paginate(defaultCount: 10)
+    "get category by project"
+    categoryByProject(id: ID! @eq): [Category!]! @paginate(defaultCount: 10)
+    "get project by client"
+    projectByClient(id: ID! @eq): [Project!]! @paginate(defaultCount: 10)
+
+}
+
+"Account of a person who utilizes this application."
+type User {
+    "Unique primary key."
+    id: ID!
+
+    "Non-unique name."
+    name: String!
+
+    "Unique email address."
+    email: String!
+
+    "When the email was verified."
+    email_verified_at: DateTime
+
+    "When the account was created."
+    created_at: DateTime!
+
+    "When the account was last updated."
+    updated_at: DateTime!
+}
+
+
+type Project{
+    id: ID!
+    name: String!
+    client: String!
+    description: String!
+    status: String!
+    user: User! @belongsTo
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+
+type Category{
+    id: ID!
+    name: String!
+    description: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+
+type Mutation {
+    "Create a new user account."
+    createUser(
+      name: String!
+      email: String!
+      password: String!
+    ): User @create
+
+    "Update an existing user account."
+    updateUser(
+      id: ID!
+      name: String
+      email: String
+      password: String
+    ): User @update
+
+    "Delete an existing user account."
+    deleteUser(
+      id: ID!
+    ): User @delete
+
+    "Create a new project."
+    createProject(
+      name: String!
+      client: String!
+      description: String!
+      status: String!
+      user_id: ID!
+    ): Project @create @event(dispatch: "App\\Events\\ProjectCreated")
+
+    "Update an existing project."
+    updateProject(
+      id: ID!
+      name: String
+      clint: String
+      description: String
+      status: String
+      user_id: ID
+    ): Project @update
+
+    "Delete an existing project."
+    deleteProject(
+      id: ID!
+    ): Project @delete
+
+    "Create a new category."
+    createCategory(
+      name: String!
+      description: String!
+    ): Category @create
+
+    "Update an existing category."
+    updateCategory(
+      id: ID!
+      name: String
+      description: String
+    ): Category @update
+
+    "Delete an existing category."
+    deleteCategory(
+      id: ID!
+    ): Category @delete
+
+}
