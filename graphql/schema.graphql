@@ -69,6 +69,7 @@ type Project{
     client: String!
     description: String!
     status: String!
+    category: Category! @belongsTo
     user: User! @belongsTo
     created_at: DateTime!
     updated_at: DateTime!
@@ -111,6 +112,7 @@ type Mutation {
       client: String!
       description: String!
       status: String!
+        category_id: ID!
       user_id: ID!
     ): Project @create @event(dispatch: "App\\Events\\ProjectCreated")
 
@@ -120,6 +122,7 @@ type Mutation {
       name: String
       clint: String
       description: String
+      category_id: ID
       status: String
       user_id: ID
     ): Project @update
